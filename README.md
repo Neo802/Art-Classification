@@ -66,6 +66,10 @@ Required Directory Structure:
 art-classification/
 ├── mainAppCUDA.py         # Gradio application optimized for NVIDIA GPUs, with both single image test and full test set evaluation
 ├── mainAppUniversal.py    # Main Gradio application, only featuring single image test, by file, webcam or clipboard
+├── datasetResizer.py           # Preprocessing script to standardize image sizes
+├── modelEfficientNetV2.ipynb   # Jupyter Notebook: Training pipeline for EfficientNetV2
+├── modelConvNeXt.ipynb         # Jupyter Notebook: Training pipeline for ConvNeXt
+├── modelDenseNet.ipynb         # Jupyter Notebook: Training pipeline for DenseNet121
 ├── datasets/              # (Required) Image dataset
 │   ├── Impressionism/
 │   ├── Cubism/
