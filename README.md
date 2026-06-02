@@ -11,6 +11,13 @@ A deep learning computer vision application designed to classify paintings and a
 
 ---
 
+## ⚠️ Important Note on Model Weights
+Due to GitHub's strict 100MB file size limit, the pre-trained PyTorch `.pth` weight files **are not included in this repository**. 
+
+To run the Gradio application, you must first train the models locally using the provided Jupyter Notebooks (`.ipynb`), which will automatically generate and save the required `.pth` files into your `/models` directory. See the **Usage** section below for the exact step-by-step pipeline.
+
+---
+
 ## 📊 Dataset Reference
 
 This project is trained and evaluated on the curated **WikiArt Art Movements/Styles** dataset:
@@ -81,8 +88,23 @@ art-classification/
 └── README.md
 ```
 
-### 💻 Usage
-Run the Gradio web server:
+### 💻 Pipeline & Usage
+Because the trained weights exceed GitHub's storage limits, you must execute the pipeline in the following order:
+
+#### Step 1: Data Preprocessing
+Once you have placed the Kaggle dataset into the `datasets/` folder, optimize the image dimensions using the resizing utility to unblock CPU bottlenecks:
+```bash
+python datasetResizer.py
+```
+
+#### Step 2: Train the Models
+Open and run the included Jupyter Notebooks. Each notebook contains the customized PyTorch training loop. Running these will train the deep classification heads and automatically save the required _best.pth files into the `models/` folder.
+- Run modelEfficientNetV2.ipynb
+- Run modelConvNeXt.ipynb
+- Run modelDenseNet.ipynb
+
+#### Step 3: Run the Web Interface
+Once the .pth files are generated, you can launch the UI:
 ```bash
 python mainAppCUDA.py
 ```
@@ -90,7 +112,7 @@ or
 ```bash
 python mainAppUniversal.py
 ```
-The application will boot up in your terminal and automatically open in your default web browser.
+The server binds onto your network interfaces at http://127.0.0.1:7860. If your platform does not auto-execute your default application view window, navigate manually to http://localhost:7860.
 
 ### 🧠 Architecture Deep-Dive
 #### The Custom Deep Head
@@ -114,8 +136,11 @@ nn.Sequential(
 )
 ```
 
-#### Why Focal Loss?
-Distinguishing between closely related art styles (e.g., High Renaissance vs. Mannerism) is notoriously difficult. Standard Cross-Entropy loss allows the model to get "lazy" by only learning easy classes. By implementing Focal Loss, the model dynamically scales down the loss for easy, well-classified examples and hyper-focuses on the nuanced, difficult styles.
+#### Mathematical Stabilization (Focal Loss)
+Differentiating stylistic features like High Renaissance and Mannerism requires a loss function that ignores easy-to-learn visual primitives and focuses strictly on ambiguous edge boundaries. The integrated FocalLoss scales loss contribution programmatically:
+$$\text{FL}(p_t) = -\alpha_t (1 - p_t)^\gamma \log(p_t)$$
+
+This keeps the optimization objective focused squarely on hard-to-classify samples.
 
 ### 📈 Future Roadmap
 [x] Migrate from Keras/TensorFlow to PyTorch
